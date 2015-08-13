@@ -55,29 +55,26 @@ def slack_bicikelj(u, c, m):
 
         last_update = int(time.time() - int(j['updated']))
 
-        # 2011-10-13 15:55 - This doesn't work and I'm not wasting any more time learning about encodings today
-        station_name = station_name.encode('utf8', 'ignore')
-
         if station_name == 'LIST':
             station_names = []
             for station in j['markers'].itervalues():
-                station_names.append(station['name'].encode('utf8', 'ignore'))
+                station_names.append(station['name'])
             return "List of stations: %s" % ", ".join(station_names)
         elif station_name == 'ALL':
             retstr = "All stations (updated %s seconds ago):\n" % last_update
             for station in j['markers'].itervalues():
-                retstr += "%s: %s bikes / %s spaces\n" % (station['name'].encode('utf8', 'ignore'), station['station']['available'], station['station']['free'])
+                retstr += "%s: %s bikes / %s spaces\n" % (station['name'], station['station']['available'], station['station']['free'])
             return retstr
         else:
             my_station_id = None
             for station_id, station in j['markers'].iteritems():
-                if station['name'].encode('utf8', 'ignore') == station_name:
+                if station['name'] == station_name:
                     my_station_id = station_id
             if my_station_id is None:
                 return "Bicikelj station '%s' not found - try 'TIVOLI' or something..." % station_name
             else:
                 station = j['markers'][my_station_id]
-                return "Bicikelj data for %s: %s bikes / %s spaces (updated %s seconds ago)" % (station['name'].encode('utf8', 'ignore'), station['station']['available'], station['station']['free'], last_update)
+                return "Bicikelj data for %s: %s bikes / %s spaces (updated %s seconds ago)" % (station['name'], station['station']['available'], station['station']['free'], last_update)
     except:
         return "Uh, I can't... Seems there's an error, hope you can make sense of it: " + traceback.format_exc()
 
