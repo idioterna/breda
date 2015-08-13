@@ -43,6 +43,32 @@ def _pic(url, title=None):
         return '<%s%scb=%s.jpg>' % (url, concat_char, time.time())
 
 
+def slack_makin(u, c, m):
+    if m[1] != 'copies':
+        return
+    name = ' '.join(m[2:])
+    endings = [
+        'ski',
+        'inator',
+        'tholmeau',
+        'as',
+        'kadaka',
+        'chop',
+        'erino',
+        name[-1:]+name[-1:]+name[-1:]+name[-1:],
+        'wise',
+        'man',
+        'atollah',
+        'ster',
+        'ino',
+        'ipulator',
+        'meister',
+    ]
+    rand1 = random.choice(endings)
+    rand2 = random.choice(endings)
+    return "%s%s! the %s%s!" % (name, rand1, name, rand2)
+
+
 def slack_piramida(user, chan, message):
     menu = urllib2.urlopen('http://pizzerijapiramida.si/malice/').read()
     ts = time.localtime()
