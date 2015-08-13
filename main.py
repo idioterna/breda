@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from flask import Flask, request
-import urllib2, time, re, json
+import urllib2, time, re, json, random
 app = Flask(__name__)
 app.config['DEBUG'] = True
 
