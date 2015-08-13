@@ -44,9 +44,9 @@ def _pic(url, title=None):
 
 
 def slack_makin(u, c, m):
-    if m[1] != 'copies':
+    if m[2] != 'copies':
         return
-    name = ' '.join(m[2:])
+    name = ' '.join(m[3:])
     endings = [
         'ski',
         'inator',
