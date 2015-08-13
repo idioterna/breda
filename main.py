@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from flask import Flask, request
-import urllib2, time, re, json, random
+import urllib2, time, re, json, random, traceback
 app = Flask(__name__)
 app.config['DEBUG'] = True
 
@@ -41,6 +41,45 @@ def _pic(url, title=None):
         return '<%s%scb=%s.jpg|%s>' % (url, concat_char, time.time(), title)
     else:
         return '<%s%scb=%s.jpg>' % (url, concat_char, time.time())
+
+
+
+def slack_bicikelj(u, c, m):
+    station_name = ' '.join(m[2:])
+    if not station_name:
+        station_name = 'TIVOLI'
+    try:
+        f = urllib2.urlopen('http://prevoz.org/api/bicikelj/list/')
+        d = f.read()
+        j = json.loads(d)
+
+        last_update = int(time.time() - int(j['updated']))
+
+        # 2011-10-13 15:55 - This doesn't work and I'm not wasting any more time learning about encodings today
+        station_name = station_name.encode('utf8', 'ignore')
+
+        if station_name == 'LIST':
+            station_names = []
+            for station in j['markers'].itervalues():
+                station_names.append(station['name'].encode('utf8', 'ignore'))
+            return "List of stations: %s" % ", ".join(station_names)
+        elif station_name == 'ALL':
+            retstr = "All stations (updated %s seconds ago):\n" % last_update
+            for station in j['markers'].itervalues():
+                retstr += "%s: %s bikes / %s spaces\n" % (station['name'].encode('utf8', 'ignore'), station['station']['available'], station['station']['free'])
+            return retstr
+        else:
+            my_station_id = None
+            for station_id, station in j['markers'].iteritems():
+                if station['name'].encode('utf8', 'ignore') == station_name:
+                    my_station_id = station_id
+            if my_station_id is None:
+                return "Bicikelj station '%s' not found - try 'TIVOLI' or something..." % station_name
+            else:
+                station = j['markers'][my_station_id]
+                return "Bicikelj data for %s: %s bikes / %s spaces (updated %s seconds ago)" % (station['name'].encode('utf8', 'ignore'), station['station']['available'], station['station']['free'], last_update)
+    except:
+        return "Uh, I can't... Seems there's an error, hope you can make sense of it: " + traceback.format_exc()
 
 
 def slack_makin(u, c, m):
@@ -91,10 +130,6 @@ def slack_radar(u, c, m):
 
 def slack_where(u, c, m):
     return '<https://github.com/idioterna/breda|At home, of course.>'
-
-
-def slack_bicikelj(u, c, m):
-    return "They were all stolen, so just take a hike."
 
 
 def slack_wat(u, c, m):
